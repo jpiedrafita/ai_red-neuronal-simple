@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <style type="text/css">
+    #sitio {
+      padding: 5rem;
+      font-size: 5rem;
+      margin-left: 15rem;
+    }
+  </style>
+</head>
+
+<body>
+  <!--Selector de color html5
+      Si no actualiza automáticamente en windows (mac funciona), usar jscolor-->
+  <input type="color" id="color" oninput="colorChange()" />
+  <!-- <input class="jscolor {onFineChange: 'update(this)'}" value="cc66ff"> -->
+
+  <div id="sitio">Mi sitio web</div>
+
+  <script src="jscolor.js"></script>
+  <!-- Importar librería de red neuronal -->
+  <script src="https://unpkg.com/brain.js"></script>
+  <script type="text/javascript">
+
+    // Inicializar red neuronal
+    var network = new brain.NeuralNetwork();
+
+    //Entrenamiento de la red --> Ejemplos
+    network.train([
+      { input: { rojo: 0, verde: 0, azul: 0 }, output: { color: 1 } },  //Fondo negro texto blanca
+      { input: { rojo: 1, verde: 1, azul: 1 }, output: { color: 0 } },  //Fondo blanco texto negro
+      { input: { rojo: 0, verde: 1, azul: 0 }, output: { color: 0 } },  //Fondo verde texto negro
+      { input: { rojo: 0, verde: 0.43, azul: 1 }, output: { color: 1 } },  //Fondo azul texto blanco
+      { input: { rojo: 1, verde: 0, azul: 0 }, output: { color: 1 } }  //Fondo rojo texto blanco
+    ]);
+
+    function colorChange() {
+      var div = document.getElementById("sitio");
+      var color = document.getElementById("color");
+      div.style.background = color.value;
+
+      // Tomar el fondo del usuario para hacer una predicción
+      console.log(color.value);
+      var rgb = hexToRgb(color.value);
+      // console.log(rgb);
+      var entrada = {
+        rojo: rgb[0] / 255,
+        verde: rgb[1] / 255,
+        azul: rgb[2] / 255
+      }
+      // console.log(entrada);
+
+      //Obtener predicción
+      var resultado = network.run(entrada);
+      console.log(resultado.color);
+      if (resultado.color > 0.5) {
+        div.style.color = "white";
+        // console.log("white " + resultado + " > 0.5");
+      } else {
+        div.style.color = "black";
+        // console.log("black " + resultado + " < 0.5");
+      }
+
+    }
+
+
+    function hexToRgb(hex) {
+      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? [
+        parseInt(result[1], 16),
+        parseInt(result[2], 16),
+        parseInt(result[3], 16)
+      ] : null;
+    }
+
+    function rgbToHex(r, g, b) {
+      var rHex = r.toString(16);
+      var gHex = g.toString(16);
+      var bHex = b.toString(16);
+      return "#" + rHex + gHex + bHex;
+    }
+
+
+  </script>
+
+</body>
+
+</html>
